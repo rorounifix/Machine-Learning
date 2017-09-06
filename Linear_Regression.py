@@ -96,14 +96,10 @@ class LogisticRegression:
         plt.title("Hypothesis")
         plt.xlabel("Theta 1")
         plt.ylabel("Theta 0")
-        plt.grid('on')
         plt.scatter(x,y,color="red",label="data")
-        plt.plot([0,max(self.data_x)],[(theta0),(max(self.data_y) * theta1)],label="gradient")
+        plt.plot([(theta1),max(self.data_x)],[(theta0),(max(self.data_x) * theta1)],label="gradient")
         plt.legend(loc="upper left")
-
-
-        
-        
+        plt.grid('on')
         plt.show()
         
         
@@ -121,5 +117,6 @@ class LogisticRegression:
 if __name__ == "__main__":
 
     L = LogisticRegression()
+##    L.training_data = "testing_dta.csv"
     L.training_data = "data_.csv"
     L.forward()
