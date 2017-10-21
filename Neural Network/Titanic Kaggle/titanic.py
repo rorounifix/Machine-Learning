@@ -6,17 +6,15 @@ import matplotlib.pyplot as plt
 
 
 class Neural_Network:
-
-
+    
     def __init__(self):
         self.datasets = "train.csv"
-        self.layers = [0,10,1]
+        self.layers = [0,10,10,1] 
         self.params = None
-        self.learning_rate = 0.05
+        self.learning_rate = 0.01
         self.parameter_tuning = 0.1
         self.iteration = 10000
         
-
     def _datasets(self):
 
         data = self.datasets
@@ -46,12 +44,7 @@ class Neural_Network:
             train_x = np.array(data_train_x,dtype=float)
             train_y = np.array(data_train_y,dtype=float)
             train_y = train_y.reshape(train_y.shape[0],1)
-##            s = np.sum(train_x,axis=0)/train_x.shape[0]
-##            X = (train_x/s)*0.001
-           
-                
-                
-                        
+            
         return train_x,train_y
 
 
@@ -66,11 +59,12 @@ class Neural_Network:
             b = np.zeros(L[i]).reshape(L[i],1)
             params.update({"w"+str(i):w ,
                            "b"+str(i):b })
-        
         return X,Y,params
+    
 
     def sigmoid(self,Z):
         return 1/(1+np.exp(-Z))
+    
 
     def relu(self,Z):
         A = np.maximum(0,Z)
@@ -116,7 +110,6 @@ class Neural_Network:
             grads.update({"dZ"+str(i):back_relu(grads["dA"+str(i)],prop["Z"+str(i)])})
             grads.update({"dW"+str(i):(1/m) * np.dot(grads["dZ"+str(i)],prop["A"+str(i-1)].T)})
             grads.update({"db"+str(i):(1/m) * np.sum(grads["dZ"+str(i)],axis=1,keepdims=True)})
-        
         return grads
 
     def update_params(self,grads,params,learning_rate):
@@ -127,8 +120,8 @@ class Neural_Network:
                         "b"+str(i):params["b"+str(i)] - (learning_rate*grads["db"+str(i)])})
         return new_params
 
+
     def plot(self,X,Y):
-        
         plt.plot(X,Y)
         plt.xlabel("iteration")
         plt.ylabel("loss")
