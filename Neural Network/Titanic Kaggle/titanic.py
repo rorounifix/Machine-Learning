@@ -10,10 +10,10 @@ class Neural_Network:
 
     def __init__(self):
         self.datasets = "train.csv"
-        self.layers = [0,10,5,5,1]
+        self.layers = [0,10,1]
         self.params = None
-        self.learning_rate = 0.11
-        self.parameter_tuning = 0.01
+        self.learning_rate = 0.05
+        self.parameter_tuning = 0.1
         self.iteration = 10000
         
 
@@ -40,19 +40,19 @@ class Neural_Network:
                     elif i == "C":
                         i = 3
                     sets.append(i)
-                data_train_x.append(sets[:-2])
-                data_train_y.append(sets[-2])
+                data_train_x.append(sets[:-1])
+                data_train_y.append(sets[-1])
 
             train_x = np.array(data_train_x,dtype=float)
             train_y = np.array(data_train_y,dtype=float)
             train_y = train_y.reshape(train_y.shape[0],1)
-            s = np.sum(train_x,axis=0)/train_x.shape[0]
-            X = (train_x/s)*0.001
+##            s = np.sum(train_x,axis=0)/train_x.shape[0]
+##            X = (train_x/s)*0.001
            
                 
                 
                         
-        return X,train_y
+        return train_x,train_y
 
 
     def set_params(self,X,Y):
@@ -78,7 +78,7 @@ class Neural_Network:
 
     def forward(self,X,params):
         L = self.layers
-        
+        X = X*self.parameter_tuning
         prop = {}
         prop.update({"A0":X})
         
@@ -86,17 +86,13 @@ class Neural_Network:
             prop.update({"Z"+str(i):np.dot(params["w"+str(i)].T,prop["A"+str(i-1)])})
             if i == len(L)-1:
                 prop.update({"A"+str(i):self.sigmoid(prop["Z"+str(i)])})
-
             else:
-            
                 prop.update({"A"+str(i):self.relu(prop["Z"+str(i)])})
         yhat = prop["A"+str(len(L)-1)]
-        
         return prop, yhat
     
         
     def cost(self,Y,yhat):
-     
         A = yhat
         m = Y.shape[1]
         cost = -(1/m) * np.sum(np.multiply(Y,np.log(A)) - np.multiply((1-Y),np.log(1-A)),axis=1,keepdims=True)
@@ -152,36 +148,37 @@ class Neural_Network:
             params = NN.update_params(grads,params,learning_rate)
           
                         
-            loss.append(cost[0][0]) #for plot 
-            itr.append(i) #for plot
-        self.params = params
-
-        ##this is not accurate prediction, i need some suggestion here
-        x = np.sum(Y,axis=1)
-        y = np.sum(yhat,axis=1)
-        print("{}% probability".format(round((y/x)[0]*100,3)))
+            loss.append(cost[0][0]) 
+            itr.append(i) 
+        self.params = params 
+        for i in range(len(yhat[0])):
+            if yhat[0,i] >= 0.5:
+                yhat[0,i] = 1
+            else:
+                yhat[0,i] = 0
+        chance = np.sum(yhat==Y)/yhat.shape[1]
+        print("Probability {}%".format(round(chance*100,2)))
         self.plot(itr,loss)
 
     def predict(self,X):
         X = X.T
         params = self.params
         pred = self.forward(X,params)[1]
-        print(round(pred[0]*100,2),"%")
+        for i in range(len(pred[0])):
+            if pred[0,i] >= 0.5:
+                pred[0,i] = 1
+            else:
+                pred[0,i] = 0
+        return pred
         
-
-    
 
 if __name__ == "__main__":
     NN = Neural_Network()
     np.random.seed(1)
     learning_rate = NN.learning_rate
-##    X = np.random.randn(800,5)
-##    Y = np.random.randint(2,size=X.shape[0])
     X,Y = NN._datasets()
-##    NN.params = NN.set_params(X,Y)[2]
     NN.L_model(X,Y,learning_rate)
-##    X_test = np.array([[2,3,4,5,6],[1,2,3,1,2]])
-##    NN.predict(X_test)
+
     
 
    
